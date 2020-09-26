@@ -1,0 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <mime-info>
+   <mime-type type="application/chf">
+          <glob pattern="*.chf"/>
+   </mime-type>
+ </mime-info>
