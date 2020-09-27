@@ -27,9 +27,15 @@ public class Cluster {
 
         Node nextNode = (index==sortedNodes.size()-1) ? sortedNodes.get(0) : sortedNodes.get(index+1);
 
+        Node prevNode = (index==0) ? sortedNodes.get(sortedNodes.size()-1) : sortedNodes.get(index-1);
+
         if (prevLocation<node.location) {
             List<Dummy> objects = nextNode.migrate(prevLocation, node.location);
             objects.forEach(o->node.add(o));
+
+            objects = prevNode.migrateReplicas(prevLocation, node.location);
+            objects.forEach(o->node.addReplica(o));
+
         }
         else // have to cater for circle
         {
@@ -37,6 +43,11 @@ public class Cluster {
             objects.forEach(o->node.add(o));
             objects = nextNode.migrate(0, node.location);
             objects.forEach(o->node.add(o));
+
+            objects = prevNode.migrateReplicas(prevLocation, Hash);
+            objects.forEach(o->node.addReplica(o));
+            objects = prevNode.migrateReplicas(0, node.location);
+            objects.forEach(o->node.addReplica(o));
 
         }
 
@@ -51,16 +62,27 @@ public class Cluster {
         int index = sortedNodes.indexOf(node);
         int next = (index==sortedNodes.size()-1)  ? 0 : index+1;
 
+        int prev = (index==0) ? sortedNodes.size()-1 : index-1;
+
         Node nextNode = sortedNodes.get(next);
         List<Dummy> objects = node.move();
         objects.forEach(o->nextNode.add(o));
-       sortedNodes.remove(node);
-       Collections.sort(sortedNodes);
+
+        Node prevNode = sortedNodes.get(prev);
+         objects = node.moveReplicas();
+        objects.forEach(o->prevNode.addReplica(o));
+
+
+        sortedNodes.remove(node);
+
+
+
+        Collections.sort(sortedNodes);
 
 
     }
 
-    public Node getNode(Dummy dummy)
+    public NodeReplicaTuple getNode(Dummy dummy)
     {
         String key = dummy.key;
 
@@ -69,15 +91,24 @@ public class Cluster {
 
        dummy.location = location;
 
+       NodeReplicaTuple tuple = new NodeReplicaTuple();
+
         if (location > sortedNodes.get(sortedNodes.size()-1).location)
         {
-            return sortedNodes.get(0);
+            tuple.node= sortedNodes.get(0);
+            tuple.replica = sortedNodes.get(sortedNodes.size()-1);
         }
         else
         {
             int index= getIndex(location);
-            return sortedNodes.get(index);
+             tuple.node = sortedNodes.get(index);
+             if (index!=0)
+                tuple.replica = sortedNodes.get(index-1);
+             else
+                 tuple.replica = sortedNodes.get(sortedNodes.size()-1);
         }
+
+        return tuple;
     }
 
     private int getIndex(int location)
@@ -109,39 +140,53 @@ public class Cluster {
     }
 
 
+    static class NodeReplicaTuple
+    {
+        Node node ;
+        Node replica;
+
+
+        public void add(Dummy dummy) {
+
+            node.add(dummy);
+            replica.addReplica(dummy);
+        }
+    }
+
     public static void main(String[] args) {
 
         Cluster cluster = new Cluster();
 
         Node node1 = new Node("0");
+
+        Node node2 = new Node("1");
+        Node node3 = new Node("2");
+        Node node4 = new Node("3");
+
         cluster.add(node1);
+        cluster.add(node2);
+
+        cluster.print();
 
 
 
 
-
-         for (int i=0;i<10;i++)
+         for (int i=0;i<100;i++)
           {
               Dummy dummy = new Dummy();
 
-              Node node = cluster.getNode(dummy);
+              NodeReplicaTuple tuple = cluster.getNode(dummy);
 
-              node.add(dummy);
+              tuple.add(dummy);
 
            }
 
-         cluster.print();
 
-        Node node2 = new Node("1");
-      Node node3 = new Node("2");
-        Node node4 = new Node("3");
-
-        cluster.add(node2);
-       cluster.add(node3);
+        cluster.add(node3);
         cluster.add(node4);
 
-
         cluster.print();
+
 
 
         cluster.delete(node2);
