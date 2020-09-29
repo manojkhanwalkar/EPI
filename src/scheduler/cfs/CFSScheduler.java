@@ -85,7 +85,7 @@ public class CFSScheduler {
         }
     }
 
-    static final int TimeSlice=100;
+    public static final int TimeSlice=100;
 
     public void expire(CFSTask t)
     {
