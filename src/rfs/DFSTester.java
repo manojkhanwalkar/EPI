@@ -1,52 +1,84 @@
 package rfs;
 
-import com.amazonaws.services.opsworks.model.App;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
-public class FSTester {
+public class DFSTester {
 
-    protected static List<String> getFileContents(String name)
+    private static List<String> getFileContents(String name)
     {
 
-        List<String>  contents = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new FileReader(name)))
-        {
-
-            String line = reader.readLine();
-            while(line!=null)
-            {
-                contents.add(line);
-
-                line = reader.readLine();
-            }
-
-        } catch (Exception e) { e.printStackTrace(); }
-
-        return contents;
-
+    return FSTester.getFileContents(name);
     }
 
     public static void main(String[] args) throws Exception {
 
 
-        FileSystem fileSystem = new FileSystem("fs1");
+        FileSystem fileSystem1 = new FileSystem("fs1");
+        FileSystem fileSystem2 = new FileSystem("fs2");
+        fileSystem1.compress();
+        fileSystem2.compress();
 
-        fileSystem.compress();
+
+        DFS dfs = new DFS();
+
+        dfs.register(fileSystem1);
+        dfs.register(fileSystem2);
+
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new DFSNodeWriter(dfs)));
 
         System.out.println("======================================================");
+        dfs.printDirs();
+        System.out.println("======================================================");
+
+        dfs.createDir("/home/");
+
+        dfs.createDir("/home/data/");
+        dfs.createDir("/home/test/");
+
+        dfs.createDir("/test/");
+
+        dfs.createFile("/word1");
+
+        dfs.createFile("/home/word2");
+        dfs.createFile("/test/word1");
+        dfs.createFile("/home/test/word1");
+
+        dfs.printDirs();
+
+        System.out.println("======================================================");
+        dfs.printFiles();
+        System.out.println("======================================================");
+
+
+        dfs.deleteFile("/test/word1");
+        dfs.printFiles();
+        System.out.println("======================================================");
+
+        dfs.deleteDirAndUnderlying("/home/");
+
+        dfs.printDirs();
+
+        System.out.println("======================================================");
+
+        dfs.write("/word1",getFileContents("/home/manoj/data/words1.txt"));
+
+        dfs.read("/word1").forEach(System.out::println);
+
+
+
+   /*
 
         fileSystem.printDirs();
 
         fileSystem.printFiles();
 
-        System.out.println("======================================================");
+        System.out.println("======================================================");*/
 
 
 
@@ -65,7 +97,7 @@ public class FSTester {
         f3.get().forEach(System.out::println);
         System.out.println("======================================================");*/
 
-      try(RFSFileReader fileReader = FileSystem.getReader("/word2", fileSystem)) {
+/*      try(RFSFileReader fileReader = FileSystem.getReader("/word2", fileSystem)) {
 
           Iterator<String> iter = fileReader.iterator();
           while (iter.hasNext()) {
@@ -74,17 +106,17 @@ public class FSTester {
               System.out.println(s);
           }
 
-      }
+      }*/
 
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new INodeWriter(fileSystem)));
 
 
-    /*  fileSystem.createFile("/word1");
+
+    /*
         fileSystem.write("/word1",getFileContents("/home/manoj/data/words1.txt"), FileSystem.WriteMode.OverWrite);
 */
 
-        fileSystem.deleteFile("/word2");
+   /*     fileSystem.deleteFile("/word2");
 
        try(RFSFileWriter fileWriter = FileSystem.getWriter("/word2",fileSystem))
        {
@@ -96,22 +128,13 @@ public class FSTester {
 
 
 
-        fileSystem.createDir("/home/");
 
-        fileSystem.createDir("/home/data/");
         fileSystem.createFile("/home/data/word3");
 
 
-        fileSystem.createDir("/home/test/");
-
-        fileSystem.createDir("/test/");
-
-        fileSystem.printDirs();
 
 
-        fileSystem.createFile("/home/word2");
-        fileSystem.createFile("/test/word1");
-        fileSystem.createFile("/home/test/word1");
+
 
       //  fileSystem.read("/home/data/word3").forEach(System.out::println);
 
@@ -131,7 +154,7 @@ public class FSTester {
 
         fileSystem.deleteFile("/home/data/word3");
 
-       fileSystem.printFiles();
+
 
         fileSystem.deleteDirAndUnderlying("/home/");
 
@@ -141,7 +164,7 @@ public class FSTester {
 
 
 
-// "org/apache/tika/mime/custom-mimetypes.xml"
+// "org/apache/tika/mime/custom-mimetypes.xml"*/
 
 
     }

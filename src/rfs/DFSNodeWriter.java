@@ -5,40 +5,41 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
-public class INodeWriter implements Runnable {
+public class DFSNodeWriter implements Runnable {
 
-    FileSystem fileSystem;
-    public INodeWriter(FileSystem fileSystem)
+    DFS dfs;
+    public DFSNodeWriter(DFS dfs)
     {
-        this.fileSystem = fileSystem;
+        this.dfs = dfs;
     }
 
 
     public void run()
     {
-        try {
-            fileSystem.dataFileReadWrite.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        dfs.fileSystems.forEach(fileSystem -> {
+
+            new INodeWriter(fileSystem).run();
+
+        });
 
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileSystem.directory+FileSystem.inodeFile)))
+
+
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(DFS.dfsNodeFile)))
         {
 
-            INode root = fileSystem.inodeMap.get("/");
+            DFSNode root = dfs.inodeMap.get("/");
 
-            Queue<INode> dirs = new ArrayDeque<>();
+            Queue<DFSNode> dirs = new ArrayDeque<>();
             dirs.add(root);
 
             while(!dirs.isEmpty())
             {
-                INode curr =  dirs.remove();
+                DFSNode curr =  dirs.remove();
 
                 try {
-                    writer.write(INode.INodeSerialized(curr));
+                    writer.write(DFSNode.DFSNodeSerialized(curr));
                     writer.newLine();
                     writer.flush();
 

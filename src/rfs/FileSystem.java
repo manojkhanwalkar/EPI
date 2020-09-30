@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class FileSystem {
 
-    static final String directory = "/home/manoj/data/rfs/";
+     String directory = "/home/manoj/data/rfs/";
 
     static final String dataFile = "dataFile";
 
@@ -38,10 +38,14 @@ public class FileSystem {
     Lock readLock ; Lock writeLock;
 
 
+    String fsName;
 
 
-    public FileSystem()
+    public FileSystem(String fsName)
     {
+        directory = directory+fsName+"/";
+
+        this.fsName = fsName;
 
         writeLock = lock.writeLock();
         readLock = lock.readLock();
