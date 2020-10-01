@@ -8,8 +8,29 @@ public class LevenisteinDistance {
 
     }
 
+    private static String pad(String s, int length)
+    {
+        StringBuilder sb = new StringBuilder(s);
+
+        for (int i=0;i<length;i++)
+        {
+            sb.append(" ");
+
+        }
+
+        return sb.toString();
+    }
+
     public static int editDistance(String s1,String s2)
     {
+        if (s1.length()>s2.length())
+        {
+            s2 = pad(s2,s1.length()-s2.length());
+        } else if (s2.length()>s1.length())
+        {
+            s1 = pad(s1,s2.length()-s1.length());
+        }
+
        int[][] chars = new int[s1.length()+1][s2.length()+1];
 
        for (int i=0;i<chars[0].length;i++)
