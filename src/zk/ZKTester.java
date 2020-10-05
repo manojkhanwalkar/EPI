@@ -8,7 +8,7 @@ import static zk.Node.Type.Peristent;
 public class ZKTester {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
 
         Cluster cluster = new Cluster();
@@ -23,7 +23,7 @@ public class ZKTester {
 
         ZKClient client = new ZKClient(cluster);
 
-        client.addWatch("/test1/");
+        client.addWatch("/test/");
 
         ZKClient client1 = new ZKClient(cluster);
 
@@ -43,7 +43,7 @@ public class ZKTester {
             }).join();
 
 
-            CompletableFuture.runAsync(() -> {
+      /*      CompletableFuture.runAsync(() -> {
 
                 client1.delete("/test/");
 
@@ -52,9 +52,10 @@ public class ZKTester {
                 client1.delete("/home1/");
 
 
-            }).join();
+            });*/
 
         }
+
 
 
 

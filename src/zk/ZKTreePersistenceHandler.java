@@ -1,5 +1,7 @@
 package zk;
 
+import io.netty.util.internal.ConcurrentSet;
+
 import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,12 +43,53 @@ public class ZKTreePersistenceHandler {
 
 
 
-        ZKTree tree =  new ZKTree(); //TODO - get tree from recovered nodes
+        ZKTree tree =  new ZKTree();
+        if (persistentNodes==null) {
 
-        tree.init();
+            tree.init();
+        }
+
+        persistentNodes.forEach(node->{
+
+
+            node.children = new ConcurrentSet<>();
+            tree.nodeMap.put(node.name,node);
+
+
+
+
+        });
+
+        persistentNodes.forEach(node->{
+
+            if (node.name.equals("/")) {
+                // root node - no parent
+            }
+            else
+            {
+                String parent = findParent(node.name);
+                Node parentNode =  tree.nodeMap.get(parent);
+                parentNode.children.add(node);
+                node.parent = parentNode;
+            }
+        });
 
         return tree;
 
+    }
+
+    private static String findParent(String path)
+    {
+        for (int i=path.length()-2;i>=0;i--)
+        {
+            if (path.charAt(i)=='/')
+            {
+                return path.substring(0,i+1);
+            }
+        }
+
+        System.out.println("Parent not located " + path);
+        return null;
     }
 
     /*
