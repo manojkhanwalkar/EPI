@@ -15,6 +15,26 @@ public class ZKClient {
         this.server = cluster.getServer();
     }
 
+    public boolean lock(String lockStr)
+    {
+        while(!add("/",lockStr,Peristent))
+        {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return true;
+    }
+
+
+    public void unlock(String lockStr)
+    {
+        delete(lockStr);
+    }
+
 
     public boolean add(String path , String name , Node.Type type)
     {

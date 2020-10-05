@@ -29,7 +29,7 @@ public class ZKTester {
 
         client1.addWatch("/home1/");
 
-        for (int i=0;i<5;i++) {
+      /*  for (int i=0;i<5;i++) {
 
             CompletableFuture.runAsync(() -> {
 
@@ -40,7 +40,7 @@ public class ZKTester {
                 client.add("/", "/home1/", Ephemeral);
 
 
-            }).join();
+            }).join(); */
 
 
       /*      CompletableFuture.runAsync(() -> {
@@ -52,17 +52,63 @@ public class ZKTester {
                 client1.delete("/home1/");
 
 
-            });*/
+            });
+
+        } */
+
+
+
+        final String lockStr = "/applock1/";
+
+        var x1 = CompletableFuture.runAsync(()->{
+
+        int count=0;
+
+
+        for (int i=0;i<500;i++)
+        {
+            client1.lock(lockStr);
+            System.out.println("Client 1 has lock " + count++);
+            client1.unlock(lockStr);
+
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        });
+
+
+
+      var x2 =   CompletableFuture.runAsync(()->{
+
+          int count=0;
+
+            for (int i=0;i<500;i++)
+        {
+            client.lock(lockStr);
+            System.out.println("Client 22222222222  has lock " + count++);
+            client.unlock(lockStr);
+
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
 
 
 
+        });
+
+      CompletableFuture.allOf(x1,x2).join();
+
 
         server.persist();
         server1.persist();
-
-
 
     }
 }
