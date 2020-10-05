@@ -1,5 +1,7 @@
 package zk;
 
+import java.util.concurrent.CompletableFuture;
+
 import static zk.Node.Type.Ephemeral;
 import static zk.Node.Type.Peristent;
 
@@ -21,28 +23,43 @@ public class ZKTester {
 
         ZKClient client = new ZKClient(cluster);
 
-        client.addWatch("/");
+        client.addWatch("/test1/");
 
-        client.add("/","/test/" , Peristent);
+        ZKClient client1 = new ZKClient(cluster);
 
-        client.add("/","/test1/" , Ephemeral);
+        client1.addWatch("/home1/");
 
-        client.add("/","/home1/" , Ephemeral);
+        for (int i=0;i<5;i++) {
 
-        client.delete("/home1/" );
+            CompletableFuture.runAsync(() -> {
 
-        client.add("/","/test/" , Peristent);
+                client.add("/", "/test/", Peristent);
 
-        client.add("/","/test1/" , Ephemeral);
+                client.add("/", "/app1/", Ephemeral);
 
-        client.add("/","/home1/" , Ephemeral);
+                client.add("/", "/home1/", Ephemeral);
 
-     /*   ZKClient client1 = new ZKClient(cluster);
-        client1.add("/","/test/",Peristent); */
+
+            }).join();
+
+
+            CompletableFuture.runAsync(() -> {
+
+                client1.delete("/test/");
+
+                client1.delete("/app1/");
+
+                client1.delete("/home1/");
+
+
+            }).join();
+
+        }
+
 
 
         server.persist();
-      //  server1.persist();
+        server1.persist();
 
 
 

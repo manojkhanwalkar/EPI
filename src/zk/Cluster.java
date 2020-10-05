@@ -27,6 +27,7 @@ public class Cluster {
 
     }
 
+
     public Server getServer()
     {
         return servers.parallelStream().findAny().get();
