@@ -52,6 +52,11 @@ public class ZKClient {
         return server.delete(path);
     }
 
+    public Node get(String path)
+    {
+        return server.get(path);
+    }
+
 
     public void addWatch(String path)
     {

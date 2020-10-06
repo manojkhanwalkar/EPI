@@ -49,6 +49,19 @@ public class ZKTree {
 
     }
 
+
+    public Node get(String path)
+    {
+        Node curr = nodeMap.get(path);
+
+        if (curr!=null)
+            return Node.copy(curr);
+
+        return null;
+
+
+    }
+
     public boolean delete(String path)
     {
         // the node and all its underlying children will be deleted by removing the association with the parent.

@@ -1,10 +1,7 @@
 package zk;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class Node implements Serializable {
 
@@ -57,6 +54,11 @@ public class Node implements Serializable {
         Node node = new Node();
         node.name = other.name;
         node.type = other.type;
+        node.version = other.version;
+        if (other.attributes!=null) {
+            node.attributes = new HashMap<>();
+            node.attributes.putAll(other.attributes);
+        }
 
         return node;
     }

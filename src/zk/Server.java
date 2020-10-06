@@ -73,6 +73,26 @@ public class Server {
 
     }
 
+
+    public Node get(String path)
+    {
+        try {
+            treeLock.lock();
+            return zkTree.get(path);
+
+        } finally {
+
+            treeLock.unlock();
+
+
+        }
+
+    }
+
+
+
+
+
     public void  processAdd(String path, Node node)
     {
 

@@ -29,6 +29,11 @@ public class ZKTester {
 
         client1.addWatch("/home1/");
 
+
+        Node node = client.get("/test/");
+
+        System.out.println(node);
+
       /*  for (int i=0;i<5;i++) {
 
             CompletableFuture.runAsync(() -> {
@@ -58,7 +63,7 @@ public class ZKTester {
 
 
 
-        final String lockStr = "/applock1/";
+     /*   final String lockStr = "/applock1/";
 
         var x1 = CompletableFuture.runAsync(()->{
 
@@ -105,7 +110,7 @@ public class ZKTester {
         });
 
       CompletableFuture.allOf(x1,x2).join();
-
+*/
 
         server.persist();
         server1.persist();
