@@ -4,6 +4,7 @@ import io.netty.util.internal.ConcurrentSet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -11,8 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static zk.Server.NodeAction.Add;
-import static zk.Server.NodeAction.Delete;
+import static zk.Server.NodeAction.*;
 
 public class Server {
 
@@ -32,7 +32,7 @@ public class Server {
 
      Lock watchLock = new ReentrantLock();
 
-     public enum  NodeAction  { Add , Delete};
+     public enum  NodeAction  { Add , Delete , Update};
 
 
     public Server(String name)
@@ -89,6 +89,52 @@ public class Server {
 
     }
 
+    public boolean update(String path,int oldVersion, Map<String,String> attributes)
+    {
+        try {
+            distributedLock.lock();
+
+            Node curr = zkTree.nodeMap.get(path);
+            if (curr==null)
+            {
+                System.out.println("Node not found for update " + path);
+                return false;
+            }
+            if (curr.version == oldVersion)
+            {
+                curr.version++;
+
+            }
+            else
+            {
+                System.out.println("Node version does not match " + curr.version + "  " + oldVersion);
+                return false;
+            }
+            if (attributes!=null)
+            {
+                if (curr.attributes==null)
+                {
+                    curr.attributes = attributes;
+                }
+                else
+                {
+                    curr.attributes.putAll(attributes);
+                }
+            }
+
+            replicateUpdate(path,curr);
+            processWatchers(Update, curr.name);
+
+            return true;
+
+        } finally {
+
+            distributedLock.unlock();
+
+
+        }
+    }
+
 
 
 
@@ -101,6 +147,35 @@ public class Server {
 
 
     }
+
+
+
+    public void  processUpdate(String path, Node node)
+    {
+
+        Node curr = zkTree.nodeMap.get(path);
+
+        curr.version++;
+
+
+
+        if (node.attributes!=null)
+        {
+            if (curr.attributes==null)
+            {
+                curr.attributes = node.attributes;
+            }
+            else
+            {
+                curr.attributes.putAll(node.attributes);
+            }
+        }
+
+        processWatchers(Update, node.name);
+
+
+    }
+
 
     public boolean delete(String path)
     {
@@ -150,6 +225,18 @@ public class Server {
 
     }
 
+    private void replicateUpdate(String path,Node node)
+    {
+        Server thisObject = this;
+        clusterServers.stream().filter(s->s!=thisObject).forEach(server-> {
+
+            Node n = Node.copy(node);
+            server.processUpdate(path, n);
+
+        });
+
+    }
+
     private void processWatchers(NodeAction action, String path)
     {
         try {
@@ -163,7 +250,7 @@ public class Server {
                 });
             }
 
-            if (action == Add) {
+            if (action == Add || action==Update ) {
                 watchClients.entrySet().stream().filter(e ->
                         path.startsWith(e.getKey())).flatMap(e -> e.getValue().stream()).forEach(client -> {
 

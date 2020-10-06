@@ -1,5 +1,7 @@
 package zk;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static zk.Node.Type.Ephemeral;
@@ -29,10 +31,22 @@ public class ZKTester {
 
         client1.addWatch("/home1/");
 
+        client.add("/", "/test/", Peristent);
+
 
         Node node = client.get("/test/");
 
         System.out.println(node);
+
+        Map<String,String> attributes = new HashMap<>();
+        attributes.put("Key", "Values");
+
+        client.update("/test/",node.version,attributes);
+
+        node = client.get("/test/");
+
+        System.out.println(node);
+
 
       /*  for (int i=0;i<5;i++) {
 

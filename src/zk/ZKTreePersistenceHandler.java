@@ -48,31 +48,30 @@ public class ZKTreePersistenceHandler {
 
             tree.init();
         }
+        else {
 
-        persistentNodes.forEach(node->{
-
-
-            node.children = new ConcurrentSet<>();
-            tree.nodeMap.put(node.name,node);
+            persistentNodes.forEach(node -> {
 
 
+                node.children = new ConcurrentSet<>();
+                tree.nodeMap.put(node.name, node);
 
 
-        });
+            });
 
-        persistentNodes.forEach(node->{
+            persistentNodes.forEach(node -> {
 
-            if (node.name.equals("/")) {
-                // root node - no parent
-            }
-            else
-            {
-                String parent = findParent(node.name);
-                Node parentNode =  tree.nodeMap.get(parent);
-                parentNode.children.add(node);
-                node.parent = parentNode;
-            }
-        });
+                if (node.name.equals("/")) {
+                    // root node - no parent
+                } else {
+                    String parent = findParent(node.name);
+                    Node parentNode = tree.nodeMap.get(parent);
+                    parentNode.children.add(node);
+                    node.parent = parentNode;
+                }
+            });
+
+        }
 
         return tree;
 

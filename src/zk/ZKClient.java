@@ -1,5 +1,7 @@
 package zk;
 
+import java.util.Map;
+
 import static zk.Node.Type.Peristent;
 
 public class ZKClient {
@@ -55,6 +57,11 @@ public class ZKClient {
     public Node get(String path)
     {
         return server.get(path);
+    }
+
+    public boolean update(String path,int oldVersion, Map<String,String> attributes)
+    {
+        return server.update(path,oldVersion,attributes);
     }
 
 
