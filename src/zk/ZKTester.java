@@ -48,6 +48,28 @@ public class ZKTester {
         System.out.println(node);
 
 
+        Counter counter = new Counter("/count1" , client);
+
+        for (int j=0;j<5;j++) {
+
+            CompletableFuture.runAsync(()->{
+
+                for (int i = 0; i < 10; i++) {
+                    int res = counter.getAndIncrement();
+
+                    System.out.println(Thread.currentThread().getName() + "  " + res);
+                }
+
+
+            });
+
+
+        }
+
+
+        Thread.sleep(2000);
+
+
       /*  for (int i=0;i<5;i++) {
 
             CompletableFuture.runAsync(() -> {
