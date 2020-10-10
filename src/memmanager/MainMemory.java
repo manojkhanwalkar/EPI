@@ -54,12 +54,13 @@ public class MainMemory {
 
     public void write(String procName , int page , int offset, char c )
     {
+        freePagesLock.lock();
 
         MemPage memPage = getMemPage(procName,page);
 
         memPage.write(offset,c);
 
-
+        freePagesLock.unlock();
 
 
     }
@@ -68,11 +69,15 @@ public class MainMemory {
     public char read(String procName , int page , int offset)
     {
 
-        MemPage memPage = getMemPage(procName,page);
+        try {
+            freePagesLock.lock();
+            MemPage memPage = getMemPage(procName, page);
 
-        return memPage.read(offset);
+            return memPage.read(offset);
 
-
+        } finally {
+            freePagesLock.unlock();
+        }
 
 
     }
