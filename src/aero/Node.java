@@ -1,13 +1,15 @@
 package aero;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 
 import static aero.Index.InvalidLocation;
 
 public class Node {
 
     Index index = new Index();
+
+    private ObjectPool<DataRecordReader> pool;
 
 
     public void put(String key, String value)
@@ -31,7 +33,16 @@ public class Node {
         long position = index.get(key);
         if (position!=InvalidLocation)
         {
-            return dataRecordReader.read(position).value;
+            try {
+                DataRecordReader dataRecordReader = pool.borrowObject();
+                String str =  dataRecordReader.read(position).value;
+
+                pool.returnObject(dataRecordReader);
+
+                return str;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -49,7 +60,7 @@ public class Node {
     DataRecordWriter dataRecordWriter = new DataRecordWriter();
     IndexRecordWriter indexRecordWriter = new IndexRecordWriter();
 
-    DataRecordReader dataRecordReader = new DataRecordReader();   //TODO - create a reader pool
+  //  DataRecordReader dataRecordReader = new DataRecordReader();   //TODO - create a reader pool
 
     IndexRecordReader indexRecordReader = new IndexRecordReader();  //TODO - to be used in revcovery .
 
@@ -64,6 +75,11 @@ public class Node {
     {
         recover();
         System.out.println("Recovered index " + index.index);
+
+        pool = new GenericObjectPool<>(new ReaderFactory());
+
+
+//ReaderUtil readerUtil = new ReaderUtil(new GenericObjectPool<StringBuffer>(new StringBufferFactory()));
     }
 
     public void recover()
