@@ -57,12 +57,12 @@ public class Node {
     }
 
 
-    DataRecordWriter dataRecordWriter = new DataRecordWriter();
-    IndexRecordWriter indexRecordWriter = new IndexRecordWriter();
+    DataRecordWriter dataRecordWriter = new DataRecordWriter("/home/manoj/data/aero/datafile");
+    IndexRecordWriter indexRecordWriter = new IndexRecordWriter("/home/manoj/data/aero/indexfile");
 
   //  DataRecordReader dataRecordReader = new DataRecordReader();   //TODO - create a reader pool
 
-    IndexRecordReader indexRecordReader = new IndexRecordReader();  //TODO - to be used in revcovery .
+    IndexRecordReader indexRecordReader = new IndexRecordReader("/home/manoj/data/aero/indexfile");  //TODO - to be used in revcovery .
 
     public void shutdown()
     {

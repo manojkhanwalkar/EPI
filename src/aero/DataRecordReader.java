@@ -3,16 +3,20 @@ package aero;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import static aero.Index.InvalidLocation;
+
 public class DataRecordReader {
 
-    String fileName = "/home/manoj/data/aero/datafile";
+    String fileName;  // = "/home/manoj/data/aero/datafile";
 
 
 
     RandomAccessFile reader;
 
-    public DataRecordReader()
+    public DataRecordReader(String fileName)
     {
+
+        this.fileName = fileName;
         try {
             reader = new RandomAccessFile(fileName,"r");
 
@@ -35,6 +39,27 @@ public class DataRecordReader {
 
 
 
+    }
+
+    public DataRecord readNext()
+    {
+
+
+        return  DataRecord.deserialize(reader);
+
+
+
+    }
+
+    public long getCurrentPosition()
+    {
+        try {
+            return reader.getFilePointer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return InvalidLocation;
     }
 
 

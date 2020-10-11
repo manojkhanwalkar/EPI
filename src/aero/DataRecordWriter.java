@@ -1,21 +1,19 @@
 package aero;
 
-import com.google.common.base.Charsets;
-
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class DataRecordWriter {
 
-    String fileName = "/home/manoj/data/aero/datafile";
+    String fileName ; //= "/home/manoj/data/aero/datafile";
 
     long position;
 
     RandomAccessFile writer;
 
-    public DataRecordWriter()
+    public DataRecordWriter(String fileName)
     {
+        this.fileName = fileName;
         try {
             writer = new RandomAccessFile(fileName,"rw");
             position = writer.length();

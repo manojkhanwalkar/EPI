@@ -10,7 +10,7 @@ public class ReaderFactory  extends BasePooledObjectFactory<DataRecordReader> {
 
     @Override
     public DataRecordReader create() {
-        return new DataRecordReader();
+        return new DataRecordReader("/home/manoj/data/aero/datafile");
     }
 
     /**

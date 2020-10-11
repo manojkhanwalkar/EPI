@@ -5,14 +5,16 @@ import java.io.RandomAccessFile;
 
 public class IndexRecordWriter {
 
-    String fileName = "/home/manoj/data/aero/indexfile";
+    String fileName; //  = "/home/manoj/data/aero/indexfile";
 
     long position;
 
     RandomAccessFile writer;
 
-    public IndexRecordWriter()
+    public IndexRecordWriter(String fileName)
     {
+
+        this.fileName = fileName;
         try {
             writer = new RandomAccessFile(fileName,"rw");
             position = writer.length();

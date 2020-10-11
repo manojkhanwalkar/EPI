@@ -7,14 +7,15 @@ import java.util.Map;
 
 public class IndexRecordReader {
 
-    String fileName = "/home/manoj/data/aero/indexfile";
+    String fileName ; // = "/home/manoj/data/aero/indexfile";
 
 
 
     RandomAccessFile reader;
 
-    public IndexRecordReader()
+    public IndexRecordReader(String fileName)
     {
+        this.fileName = fileName;
         try {
             reader = new RandomAccessFile(fileName,"r");
 
