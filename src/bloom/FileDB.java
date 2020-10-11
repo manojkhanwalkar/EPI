@@ -2,11 +2,11 @@ package bloom;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnel;
 import com.google.common.hash.Funnels;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,12 +17,27 @@ public class FileDB {
 
     static class FileIndexTuple
     {
-        BloomFilter<String> bloomfilter = BloomFilter.create(Funnels.stringFunnel(Charsets.US_ASCII),1000000,0.001);
 
+
+        BloomFilter<CharSequence> bloomfilter ;
         List<String> lines = new ArrayList<>();
 
         public FileIndexTuple(String fileName)
         {
+            if (Files.exists(Paths.get(fileName+".bloom")))
+            {
+                try {
+                    bloomfilter = BloomFilter.readFrom(new FileInputStream(fileName+".bloom"),Funnels.stringFunnel(Charsets.US_ASCII) );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+
+                bloomfilter = BloomFilter.create(Funnels.stringFunnel(Charsets.US_ASCII), 1000000, 0.001);
+            }
+
+
             try(BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName)))
             {
 
@@ -40,6 +55,13 @@ public class FileDB {
 
 
             Collections.sort(lines);
+
+            try(FileOutputStream stream = new FileOutputStream(fileName+".bloom"))
+            {
+                bloomfilter.writeTo(stream);
+
+
+            }catch (Exception ex) { ex.printStackTrace(); }
         }
 
         public String search(String key)
