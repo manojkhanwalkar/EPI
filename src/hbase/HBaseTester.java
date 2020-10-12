@@ -1,14 +1,11 @@
 package hbase;
 
-import java.util.List;
-import java.util.Optional;
-
 public class HBaseTester {
 
     public static void main(String[] args) {
 
 
-        Node node = new Node();
+      //  Node node = new Node();
 
       //  String str = "/home/manoj/data/hbase/T1/3b283882-dbd8-4339-8924-5f5ed887e867.rowcol.filter";
 
@@ -22,7 +19,7 @@ public class HBaseTester {
         node.delete("T1" , "R1" , "C1" );*/
 
 
-        Optional<WALRecord> record = node.get("T1", "R1", "C5");
+    /*    Optional<WALRecord> record = node.get("T1", "R1", "C5");
 
         System.out.println(record);
 
@@ -36,7 +33,11 @@ public class HBaseTester {
         System.out.println(records);
 
 
-        node.delete("T1" , "R1");
+        node.delete("T1" , "R1");*/
+
+    WALManager walManager = new WALManager();
+
+    walManager.compact("T1");
 
 
 

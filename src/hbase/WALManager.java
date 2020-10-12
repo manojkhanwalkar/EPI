@@ -238,6 +238,53 @@ public class WALManager {
     }
 
 
+    public void  compact(String tableName) {
+
+        String directory = DIR + tableName + "/";
+
+        File dirFile = new File(directory);
+
+        var dataFiles = FileUtils.listFiles(dirFile, null, false);
+
+        var sortedDataFiles = dataFiles.stream().filter(f->!f.getAbsolutePath().contains("filter")).sorted(Comparator.comparingLong(File::lastModified)).collect(Collectors.toList());
+
+        List<WALRecord> answers = new ArrayList<>();
+
+        sortedDataFiles.stream().forEach(dataFile -> {
+
+            try {
+
+                List<String> lines = com.google.common.io.Files.readLines(dataFile, Charsets.UTF_8);
+                var records = lines.stream().map(line -> new WALRecord(tableName, line)).collect(Collectors.toList());
+                answers.addAll(records);
+
+            } catch (Exception e) {
+
+                System.out.println(dataFile);
+                e.printStackTrace();
+            }
+        });
+
+        if (answers.size() > 0) {
+
+            Set<WALRecord> records = new HashSet<>();
+
+
+            answers.stream().forEach(r -> {
+                if (records.contains(r)) {
+                    records.remove(r);
+                }
+                records.add(r);
+
+            });
+
+
+            System.out.println("Compacted records " + records);
+
+        }
+
+
+    }
 
 
 
