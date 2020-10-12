@@ -2,6 +2,7 @@ package hbase;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class Node {
@@ -47,14 +48,16 @@ public class Node {
     }
 
 
-    public WALRecord get(String tableName, String rowId, String colId)
+    // assume getting from file - ignore records in memory.
+    public Optional<WALRecord> get(String tableName, String rowId, String colId)
     {
-        return null ;
+
+        return manager.get(tableName,rowId,colId);
     }
 
-    public List<WALRecord> get(String tableName, String rowId)
+    public Optional<List<WALRecord>> get(String tableName, String rowId)
     {
-            return null;
+            return manager.get(tableName,rowId);
     }
 
 

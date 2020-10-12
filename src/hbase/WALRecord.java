@@ -11,6 +11,20 @@ public class WALRecord implements Comparable<WALRecord> {
     protected final long timeStamp;
     protected  boolean marker = false;
 
+    public WALRecord(String tableName , String line)
+    {
+        String[] fields = line.split(",");
+        this.tableName = tableName;
+        this.rowId = fields[0];
+        this.colId = fields[1];
+        this.colValue = fields[2];
+
+        this.timeStamp = Long.valueOf(fields[3]);
+
+        this.marker = Boolean.valueOf(fields[4]);
+
+    }
+
 
     public WALRecord(String tableName, String rowId, String colId, String colValue) {
         this.tableName = tableName;
@@ -72,6 +86,15 @@ public class WALRecord implements Comparable<WALRecord> {
 
     }
 
-
-
+    @Override
+    public String toString() {
+        return "WALRecord{" +
+                "tableName='" + tableName + '\'' +
+                ", rowId='" + rowId + '\'' +
+                ", colId='" + colId + '\'' +
+                ", colValue='" + colValue + '\'' +
+                ", timeStamp=" + timeStamp +
+                ", marker=" + marker +
+                '}';
+    }
 }
