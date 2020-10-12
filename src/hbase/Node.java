@@ -29,6 +29,15 @@ public class Node {
 
     public void delete(String tableName, String rowId, String colId)
     {
+        WALRecord record = new WALRecord(tableName,rowId,colId,true);
+        records.add(record);
+        if (records.size()==SIZE)
+        {
+            // persist the records and create a new in memory set .
+            manager.persist(records);
+
+            records = new HashSet<>();
+        }
 
     }
 
@@ -46,6 +55,12 @@ public class Node {
     public List<WALRecord> get(String tableName, String rowId)
     {
             return null;
+    }
+
+
+    public Node()
+    {
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownProcessor(this)));
     }
 
 

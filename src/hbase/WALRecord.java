@@ -22,6 +22,16 @@ public class WALRecord implements Comparable<WALRecord> {
 
     }
 
+    public WALRecord(String tableName, String rowId, String colId, boolean b) {
+
+        this.tableName = tableName;
+        this.rowId = rowId;
+        this.colId = colId;
+        this.timeStamp = System.nanoTime();
+        this.marker = true;
+        colValue = "";
+    }
+
     public String getTableName() {
         return tableName;
     }
