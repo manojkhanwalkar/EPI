@@ -45,6 +45,16 @@ public class Node {
     public void delete(String tableName, String rowId)
     {
 
+        Optional<List<WALRecord>> records = get(tableName,rowId);
+
+        if (records.isPresent())
+        {
+            records.get().stream().forEach(record->{
+
+                delete(tableName,rowId,record.colId);
+            });
+        }
+
     }
 
 

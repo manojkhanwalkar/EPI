@@ -216,7 +216,9 @@ public class WALManager {
         if (answers.size()>0) {
 
             Set<WALRecord> records = new HashSet<>();
-            answers.stream().sorted().forEach(r->{
+
+
+            answers.stream().forEach(r->{
                 if (records.contains(r))
                 {
                     records.remove(r);

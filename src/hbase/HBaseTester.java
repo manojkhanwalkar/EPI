@@ -36,6 +36,11 @@ public class HBaseTester {
         System.out.println(records);
 
 
+        node.delete("T1" , "R1");
+
+
+
+
 
     }
 
