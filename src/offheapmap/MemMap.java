@@ -41,10 +41,15 @@ public class MemMap<K,V> {
 
         buffer = ByteBuffer.allocateDirect(memMapSize);
 
+        System.out.println(buffer.mark());
+
         for (int i=0;i<memMapSize;i++)
         {
             buffer.put(EMPTY);
         }
+
+
+
     }
 
 
@@ -148,8 +153,38 @@ public class MemMap<K,V> {
     //TODO - add option to delete
 
 
-    private void resize()
+    protected static<K,V> MemMap<K, V> resize(MemMap<K,V> orig)
     {
+
+        MemMap<K,V> resized = new MemMap<>(orig.recordSize,orig.totalElements*2, orig.keySerializer,orig.valueSerializer);
+
+
+        ByteBuffer buffer = orig.buffer;
+
+        for (int i=0;i<orig.totalElements;i++)
+        {
+            if (buffer.get()!=EMPTY) {
+                int len = buffer.getInt();
+                byte[] b = new byte[len];
+                buffer.get(b);
+                K key = (K) orig.keySerializer.deserialize(b);
+                len = buffer.getInt();
+                b = new byte[len];
+                buffer.get(b);
+                V value = (V) orig.valueSerializer.deserialize(b);
+
+                resized.put(key, value);
+            }
+            buffer.position(orig.recordSize*i);
+
+        }
+
+
+
+        return resized;
+
+
+
 
     }
 
@@ -186,6 +221,12 @@ public class MemMap<K,V> {
         System.out.println(map.get(100));
 
         System.out.println(map.get(200));
+
+       /* map = resize(resize(map));
+
+        System.out.println(map.get(100));
+
+        System.out.println(map.get(200));*/
 
 
     }
