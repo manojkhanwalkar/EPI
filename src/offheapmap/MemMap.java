@@ -1,0 +1,194 @@
+package offheapmap;
+
+
+import java.nio.ByteBuffer;
+import java.util.Optional;
+
+//TODO - make generic
+
+//TODO - associate with a file
+
+/*
+MappedByteBuffer out = file.getChannel()
+                                        .map(FileChannel.MapMode.READ_WRITE, 0, length);
+ */
+public class MemMap<K,V> {
+
+    int recordSize;
+    int totalElements;
+
+    int memMapSize ;
+
+    ByteBuffer buffer ;
+
+    static final byte EMPTY = (byte)1;
+    static final byte OCCUPIED = (byte)2;
+    static final byte DELETED = (byte)3;
+
+
+    Serializer keySerializer ;
+    Serializer valueSerializer;
+
+    public MemMap(int recordSize, int totalElements, Serializer keySerializer , Serializer valueSerializer)
+    {
+        this.recordSize = recordSize;
+        this.totalElements = totalElements;
+
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
+
+        memMapSize = recordSize*totalElements;
+
+        buffer = ByteBuffer.allocateDirect(memMapSize);
+
+        for (int i=0;i<memMapSize;i++)
+        {
+            buffer.put(EMPTY);
+        }
+    }
+
+
+    // assumes record size is not exceeded
+
+    // also assumes max elements not exceeded
+
+    public void put(K key, V value)
+    {
+
+        int hash = Math.abs(key.hashCode());
+
+        int index = hash%totalElements;
+
+        int location = index*recordSize;
+
+        buffer.position(location);
+
+    //TODO - have to check if the key is same , in which case it will be overwritten.
+        while(buffer.get()!=EMPTY)
+        {
+            ++index;
+            location = index*recordSize;
+
+            if (location>=memMapSize)
+            {
+                location=0;
+                index = 0;
+            }
+            buffer.position(location);
+
+        }
+
+            buffer.position(location);
+            byte[] b = keySerializer.serialize(key) ;
+            buffer.put(OCCUPIED);
+            buffer.putInt(b.length);
+            buffer.put(b);
+            b = valueSerializer.serialize(value);
+            buffer.putInt(b.length);
+            buffer.put(b);
+
+    }
+
+
+    public Optional<V> get(K key)
+    {
+        int hash = Math.abs(key.hashCode());
+
+        int index = hash%totalElements;
+
+        int location = index*recordSize;
+
+        buffer.position(location);
+
+
+        while(buffer.get()!=EMPTY)
+        {
+
+            // read the record
+
+
+            int len = buffer.getInt();
+
+            byte[] b = new byte[len];
+
+            buffer.get(b);
+
+            K key1 = (K)keySerializer.deserialize(b);
+
+            //String key1 = new String(b);
+
+            if (key.equals(key1))// found
+            {
+                len = buffer.getInt();
+                b = new byte[len];
+                buffer.get(b);
+                V value =  (V)valueSerializer.deserialize(b);
+
+                return Optional.of(value);
+            }
+
+            ++index;
+            location = index*recordSize;
+
+            if (location>=memMapSize)
+            {
+                location=0;
+                index = 0;
+            }
+            buffer.position(location);
+
+        }
+
+        return Optional.empty();
+
+
+    }
+
+
+    //TODO - add option to delete
+
+
+    private void resize()
+    {
+
+    }
+
+
+ /*   public static void main(String[] args) {
+
+        StringSerializer ser = new StringSerializer();
+
+        MemMap map = new MemMap(100, 10000,ser,ser );
+
+        map.put("Hello" , "Generic World");
+
+        map.put("HELLO" , "GENERIC WORLD");
+
+        System.out.println(map.get("Hello"));
+
+        System.out.println(map.get("HELLO"));
+
+
+    }*/
+
+
+    public static void main(String[] args) {
+
+        StringSerializer ser = new StringSerializer();
+        IntegerSerializer iser = new IntegerSerializer();
+
+        MemMap<Integer,String> map = new MemMap<>(100, 10000,iser,ser );
+
+        map.put(100 , "Generic World int key ");
+
+        map.put(200 , "GENERIC WORLD INT key");
+
+        System.out.println(map.get(100));
+
+        System.out.println(map.get(200));
+
+
+    }
+
+
+}
