@@ -207,29 +207,6 @@ public class MemMap<K,V> {
     }*/
 
 
-    public static void main(String[] args) {
-
-        StringSerializer ser = new StringSerializer();
-        IntegerSerializer iser = new IntegerSerializer();
-
-        MemMap<Integer,String> map = new MemMap<>(100, 10000,iser,ser );
-
-        map.put(100 , "Generic World int key ");
-
-        map.put(200 , "GENERIC WORLD INT key");
-
-        System.out.println(map.get(100));
-
-        System.out.println(map.get(200));
-
-       /* map = resize(resize(map));
-
-        System.out.println(map.get(100));
-
-        System.out.println(map.get(200));*/
-
-
-    }
 
 
 }
