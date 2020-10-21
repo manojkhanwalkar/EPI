@@ -43,6 +43,11 @@ public class EfficientHashMap<K,V> {
 
     }
 
+    protected void resize()
+    {
+        memMap = MemMap.resize(memMap);
+    }
+
 
 
         static class CustomLinkedHashMap<K,V> extends LinkedHashMap<K,V>
@@ -93,19 +98,18 @@ public class EfficientHashMap<K,V> {
 
             System.out.println(map.get(i));
 
-            System.out.println(map.get(200));
 
         }
 
+        System.out.println();
 
 
 
-
-       /* map = resize(resize(map));
+        map.resize();
 
         System.out.println(map.get(100));
 
-        System.out.println(map.get(200));*/
+        System.out.println(map.get(200));
 
 
     }
