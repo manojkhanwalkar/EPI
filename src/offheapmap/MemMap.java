@@ -106,7 +106,8 @@ public class MemMap<K,V> {
         buffer.position(location);
 
 
-        while(buffer.get()!=EMPTY)
+        byte type;
+        while((type=buffer.get())!=EMPTY)
         {
 
             // read the record
@@ -120,7 +121,10 @@ public class MemMap<K,V> {
 
             K key1 = (K)keySerializer.deserialize(b);
 
-            //String key1 = new String(b);
+            if (type==DELETED && key.equals(key1))
+            {
+                break;
+            }
 
             if (key.equals(key1))// found
             {
@@ -148,6 +152,64 @@ public class MemMap<K,V> {
 
 
     }
+
+
+    public void delete(K key)
+    {
+        int hash = Math.abs(key.hashCode());
+
+        int index = hash%totalElements;
+
+        int location = index*recordSize;
+
+        buffer.position(location);
+
+
+        byte type;
+        while((type=buffer.get())!=EMPTY)
+        {
+
+            // read the record
+
+
+            int len = buffer.getInt();
+
+            byte[] b = new byte[len];
+
+            buffer.get(b);
+
+            K key1 = (K)keySerializer.deserialize(b);
+
+            if (type==DELETED && key.equals(key1))
+            {
+                break;  // already deleted , return
+            }
+
+            if (key.equals(key1))// found
+            {
+               buffer.position(location);
+               buffer.put(DELETED);
+
+                return;
+            }
+
+            ++index;
+            location = index*recordSize;
+
+            if (location>=memMapSize)
+            {
+                location=0;
+                index = 0;
+            }
+            buffer.position(location);
+
+        }
+
+        return ;
+
+
+    }
+
 
 
     //TODO - add option to delete
