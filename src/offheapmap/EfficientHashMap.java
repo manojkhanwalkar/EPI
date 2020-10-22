@@ -1,10 +1,8 @@
 package offheapmap;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-public class EfficientHashMap<K,V> {
+public class EfficientHashMap<K,V> implements Map<K,V>{
 
     MemMap<K,V>  memMap ;
 
@@ -19,13 +17,69 @@ public class EfficientHashMap<K,V> {
 
     }
 
-    public void put(K key, V value) {
-
-        memMap.put(key,value);
+    @Override
+    public int size() {
+        return 0;
     }
 
-    public V get(K key)
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean containsKey(Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsValue(Object o) {
+        return false;
+    }
+
+
+    @Override
+    public V remove(Object o) {
+        return null;
+    }
+
+    @Override
+    public void putAll(Map<? extends K, ? extends V> map) {
+
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @Override
+    public Set<K> keySet() {
+        return null;
+    }
+
+    @Override
+    public Collection<V> values() {
+        return null;
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        return null;
+    }
+
+    @Override
+    public V put(K key, V value) {
+
+        memMap.put(key,value);
+
+        return null;   //TODO - to fix this
+    }
+
+    @Override
+    public V get(Object obj)
     {
+        K key = (K)obj;
         V value = map.get(key);
         if (value!=null)
             return  value;
@@ -96,21 +150,29 @@ public class EfficientHashMap<K,V> {
         EfficientHashMap<Integer,String> map = new EfficientHashMap<>(100, 10000,iser,ser );
 
 
-        for (int i=0;i<250;i++) {
-            map.put(i, "Generic World int key " + i);
+        for (int j=0;j<10;j++) {
 
-           // map.put(200, "GENERIC WORLD INT key");
+            for (int i = 0; i < 250; i++) {
+                map.put(j*i, "Generic World int key " + (j*i));
+
+                // map.put(200, "GENERIC WORLD INT key");
+
+            }
+
+            System.out.println(map.get(j*1)  + "  " + j);
+
+            for (int i = 0; i < 250; i++) {
+
+               // System.out.println(map.get(j*i));
+
+                map.delete(j*i);
+
+
+            }
 
         }
 
-        for (int i=0;i<250;i++) {
-
-            System.out.println(map.get(i));
-
-
-        }
-
-        System.out.println();
+   /*     System.out.println();
 
 
 
@@ -123,7 +185,7 @@ public class EfficientHashMap<K,V> {
 
         map.delete(100);
 
-        System.out.println("Retrieving deleted key " + map.get(100));
+        System.out.println("Retrieving deleted key " + map.get(100));*/
 
 
         map.put(100,"Key put again after deletion");

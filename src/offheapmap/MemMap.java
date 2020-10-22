@@ -53,12 +53,26 @@ public class MemMap<K,V> {
     }
 
 
-    // assumes record size is not exceeded
+    // TODO - resize when empty elements are 25% of total size
 
-    // also assumes max elements not exceeded
+
+    // also assumes max elements not exceeded - ie atleast one empty spot to break the infinite loop.
+
+
+    private void checkRecordSize(byte[] key , byte[] value)
+    {
+        int length = key.length + value.length + 1;
+
+        if (length>=recordSize)
+            throw new RuntimeException("Record size exceeds max specified , size = "+  length + ",max allowed = " + recordSize);
+    }
 
     public void put(K key, V value)
     {
+        byte[] serKey = keySerializer.serialize(key) ;
+        byte[] serValue = valueSerializer.serialize(value);
+
+        checkRecordSize(serKey,serValue);
 
         int hash = Math.abs(key.hashCode());
 
@@ -80,7 +94,7 @@ public class MemMap<K,V> {
                     K curr = getKey();
                     if (key.equals(curr))
                     {
-                        putRecord(key,value,location);
+                        putRecord(serKey,serValue,location);
                         return;
                     }
                     break;
@@ -88,18 +102,18 @@ public class MemMap<K,V> {
                 case EMPTY :
                     if (deletedinPath)
                     {
-                        putRecord(key,value,firstDeletedLocation);
+                        putRecord(serKey,serValue,firstDeletedLocation);
                     }
                     else
                     {
-                        putRecord(key,value,location);
+                        putRecord(serKey,serValue,location);
                     }
                     return ;
                 case DELETED :
                     curr = getKey();
                     if (key.equals(curr))
                     {
-                        putRecord(key,value,location);
+                        putRecord(serKey,serValue,location);
                         return;
                     }
                     else if (!deletedinPath)
@@ -129,16 +143,16 @@ public class MemMap<K,V> {
     }
 
 
-    private void putRecord(K key, V value, int location)
+    private void putRecord(byte[] key, byte[] value, int location)
     {
         buffer.position(location);
-        byte[] b = keySerializer.serialize(key) ;
+       // byte[] b = keySerializer.serialize(key) ;
         buffer.put(OCCUPIED);
-        buffer.putInt(b.length);
-        buffer.put(b);
-        b = valueSerializer.serialize(value);
-        buffer.putInt(b.length);
-        buffer.put(b);
+        buffer.putInt(key.length);
+        buffer.put(key);
+       // b = valueSerializer.serialize(value);
+        buffer.putInt(value.length);
+        buffer.put(value);
 
     }
 
@@ -274,10 +288,6 @@ public class MemMap<K,V> {
     }
 
 
-
-    //TODO - add option to delete
-
-
     protected static<K,V> MemMap<K, V> resize(MemMap<K,V> orig)
     {
 
@@ -312,65 +322,6 @@ public class MemMap<K,V> {
 
 
     }
-
-
-    /*
-      public void put(K key, V value)
-    {
-
-        int hash = Math.abs(key.hashCode());
-
-        int index = hash%totalElements;
-
-        int location = index*recordSize;
-
-        buffer.position(location);
-
-
-        while(buffer.get()!=EMPTY)
-        {
-            ++index;
-            location = index*recordSize;
-
-            if (location>=memMapSize)
-            {
-                location=0;
-                index = 0;
-            }
-            buffer.position(location);
-
-        }
-
-            buffer.position(location);
-            byte[] b = keySerializer.serialize(key) ;
-            buffer.put(OCCUPIED);
-            buffer.putInt(b.length);
-            buffer.put(b);
-            b = valueSerializer.serialize(value);
-            buffer.putInt(b.length);
-            buffer.put(b);
-
-    }
-
-     */
-
- /*   public static void main(String[] args) {
-
-        StringSerializer ser = new StringSerializer();
-
-        MemMap map = new MemMap(100, 10000,ser,ser );
-
-        map.put("Hello" , "Generic World");
-
-        map.put("HELLO" , "GENERIC WORLD");
-
-        System.out.println(map.get("Hello"));
-
-        System.out.println(map.get("HELLO"));
-
-
-    }*/
-
 
 
 
