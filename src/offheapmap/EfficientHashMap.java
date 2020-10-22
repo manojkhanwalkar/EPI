@@ -45,7 +45,7 @@ public class EfficientHashMap<K,V> {
 
     public void delete(K key)
     {
-        V value = map.remove(key);
+        map.remove(key);
 
         memMap.delete(key);
 
@@ -124,6 +124,12 @@ public class EfficientHashMap<K,V> {
         map.delete(100);
 
         System.out.println("Retrieving deleted key " + map.get(100));
+
+
+        map.put(100,"Key put again after deletion");
+
+        System.out.println(map.get(100));
+
 
 
     }

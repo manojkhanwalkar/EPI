@@ -68,9 +68,47 @@ public class MemMap<K,V> {
 
         buffer.position(location);
 
-    //TODO - have to check if the key is same , in which case it will be overwritten.
-        while(buffer.get()!=EMPTY)
+        boolean deletedinPath=false;
+        int firstDeletedLocation=-1;
+
+        while(true)
         {
+            byte type = buffer.get();
+            switch(type)
+            {
+                case OCCUPIED :
+                    K curr = getKey();
+                    if (key.equals(curr))
+                    {
+                        putRecord(key,value,location);
+                        return;
+                    }
+                    break;
+
+                case EMPTY :
+                    if (deletedinPath)
+                    {
+                        putRecord(key,value,firstDeletedLocation);
+                    }
+                    else
+                    {
+                        putRecord(key,value,location);
+                    }
+                    return ;
+                case DELETED :
+                    curr = getKey();
+                    if (key.equals(curr))
+                    {
+                        putRecord(key,value,location);
+                        return;
+                    }
+                    else if (!deletedinPath)
+                    {
+                        deletedinPath=true;
+                        firstDeletedLocation = location;
+                    }
+
+            }
             ++index;
             location = index*recordSize;
 
@@ -81,16 +119,41 @@ public class MemMap<K,V> {
             }
             buffer.position(location);
 
+
         }
 
-            buffer.position(location);
-            byte[] b = keySerializer.serialize(key) ;
-            buffer.put(OCCUPIED);
-            buffer.putInt(b.length);
-            buffer.put(b);
-            b = valueSerializer.serialize(value);
-            buffer.putInt(b.length);
-            buffer.put(b);
+
+
+
+
+    }
+
+
+    private void putRecord(K key, V value, int location)
+    {
+        buffer.position(location);
+        byte[] b = keySerializer.serialize(key) ;
+        buffer.put(OCCUPIED);
+        buffer.putInt(b.length);
+        buffer.put(b);
+        b = valueSerializer.serialize(value);
+        buffer.putInt(b.length);
+        buffer.put(b);
+
+    }
+
+    private K getKey()
+    {
+        int len = buffer.getInt();
+
+        byte[] b = new byte[len];
+
+        buffer.get(b);
+
+        K key1 = (K)keySerializer.deserialize(b);
+
+        return key1;
+
 
     }
 
@@ -250,6 +313,46 @@ public class MemMap<K,V> {
 
     }
 
+
+    /*
+      public void put(K key, V value)
+    {
+
+        int hash = Math.abs(key.hashCode());
+
+        int index = hash%totalElements;
+
+        int location = index*recordSize;
+
+        buffer.position(location);
+
+
+        while(buffer.get()!=EMPTY)
+        {
+            ++index;
+            location = index*recordSize;
+
+            if (location>=memMapSize)
+            {
+                location=0;
+                index = 0;
+            }
+            buffer.position(location);
+
+        }
+
+            buffer.position(location);
+            byte[] b = keySerializer.serialize(key) ;
+            buffer.put(OCCUPIED);
+            buffer.putInt(b.length);
+            buffer.put(b);
+            b = valueSerializer.serialize(value);
+            buffer.putInt(b.length);
+            buffer.put(b);
+
+    }
+
+     */
 
  /*   public static void main(String[] args) {
 
