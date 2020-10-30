@@ -1,4 +1,5 @@
-package jemalloc;
+package jemalloc1;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class BufferPool {
 
     final int[] sizes = {100,1000,10000,100000};
 
-    List<List<LockedStack>> pools ;
+    List<List<LockedBuffer>> pools ;
 
     private BufferPool(int maxBuffers)
     {
@@ -32,14 +33,10 @@ public class BufferPool {
             var pool = pools.get(i);
             for (int j=0;j<sizes.length;j++)
             {
-                LockedStack lockedStack = new LockedStack(maxBuffers);
                 int bufSize = sizes[j];
-                for (int k=0;k<maxBuffers;k++)
-                {
-                    lockedStack.put(new Buffer(bufSize));
-                }
+                LockedBuffer lockedBuffer = new LockedBuffer(bufSize,maxBuffers);
 
-                pool.add(lockedStack);
+                pool.add(lockedBuffer);
 
             }
         }
@@ -81,6 +78,7 @@ public class BufferPool {
             if (buffer.size()<sizes[i])
             {
                 indexOfSize = i;
+                break;
             }
 
         }
@@ -89,7 +87,6 @@ public class BufferPool {
 
 
     }
-
 
     public static void main(String[] args) {
 
@@ -100,6 +97,8 @@ public class BufferPool {
         bufferPool.put(b);
 
     }
+
+
 
 
 

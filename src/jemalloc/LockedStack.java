@@ -5,9 +5,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class LockedStack<E> {
+public class LockedStack {
 
-    Stack<E> stack = new Stack();
+    Stack<Buffer> stack = new Stack();
 
     Lock lock = new ReentrantLock();
 
@@ -25,7 +25,7 @@ public class LockedStack<E> {
     }
 
 
-    public void put(E e)
+    public void put(Buffer e)
     {
         lock.lock();
         stack.push(e);
@@ -35,7 +35,7 @@ public class LockedStack<E> {
     }
 
 
-    public E pop()
+    public Buffer pop()
     {
         try {
             lock.lock();
@@ -49,6 +49,9 @@ public class LockedStack<E> {
             }
 
             count--;
+
+            var buff = stack.pop();
+            buff.threadIdOfAllocation = Thread.currentThread().getId();
 
             return stack.pop();
 
