@@ -24,8 +24,8 @@ public class PhoneSMSTester {
         smsAttributes.put("AWS.SNS.SMS.SMSType",new MessageAttributeValue().withStringValue("Transactional").withDataType("String"));
 
         PublishRequest request = new PublishRequest();
-        request.withMessage("Your 6 digit OTP is " + OTPString())
-                .withPhoneNumber("+1002003000")
+        request.withMessage("Your 6 digit OTP code is " + OTPString())
+                .withPhoneNumber("7015168317")
                 .withMessageAttributes(smsAttributes);
         PublishResult result=snsClient.publish(request);
 
