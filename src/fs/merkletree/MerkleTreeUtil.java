@@ -40,7 +40,7 @@ public class MerkleTreeUtil {
             self = new HashNode();
             self.setParent(null);
             self.file = rootDirectory;
-            self.id = self.file.getName();
+            self.id = RandomIdGenerator.getId();
         }
         else
         {
@@ -53,8 +53,8 @@ public class MerkleTreeUtil {
                   HashNode node = new HashNode();
                   node.left = null; node.right=null;
                   node.file = f;
-                  node.id = node.file.getName();
-                  node.hash = getSHA2HexValue(f.getAbsolutePath()); //TODO - fix this with file contents MD
+                  node.id = RandomIdGenerator.getId();
+                  node.hash = getSHA2HexValue(f.getName() + f.length()); //TODO - fix this with file contents MD
                   return node;
                 }).collect(Collectors.toList()),self);
 
@@ -64,8 +64,8 @@ public class MerkleTreeUtil {
                     HashNode node = new HashNode();
                     //node.left = null; node.right=null;
                     node.file = d;
-                    node.id = node.file.getName();
-                    node.hash = getSHA2HexValue(d.getAbsolutePath()); //TODO - fix this
+                    node.id = RandomIdGenerator.getId();
+                    node.hash = getSHA2HexValue(d.getName()); //TODO - fix this
                     return node;
                 }).collect(Collectors.toList()),self);
 
@@ -257,7 +257,7 @@ public class MerkleTreeUtil {
         return null;
     }
 
-/*
+
     public static boolean validateTree(MerkleTree tree)
     {
         // if left and right are not null - then compute the hash of the children and compare to value stored .
@@ -268,8 +268,41 @@ public class MerkleTreeUtil {
 
     }
 
+    public static boolean isSame(MerkleTree tree1 , MerkleTree tree2)
+    {
+        return isSame(tree1.root, tree2.root);
+    }
 
-    private static boolean traverseAndValidateHashInTree(Node root)
+    private static boolean isSame(HashNode node1 , HashNode node2)
+    {
+        var node1Val = isNull(node1);
+        var node2Val = isNull(node2);
+
+        if (node1Val&&node2Val)
+        {
+            return true;
+        }
+        if (node1Val|| node2Val)
+            return false;
+
+        return (node1.hash.equals(node2.hash)) &&
+                isSame(node1.getLeft(), node2.getLeft()) && isSame(node1.getRight(),node2.getRight());
+
+
+
+    }
+
+    private static boolean isLeaf (HashNode node)
+    {
+        return node.getLeft()==null && node.getRight()==null;
+    }
+
+    private static boolean isNull (HashNode node)
+    {
+        return node==null;
+    }
+
+    private static boolean traverseAndValidateHashInTree(HashNode root)
     {
         if (root==null)
         {
@@ -282,16 +315,10 @@ public class MerkleTreeUtil {
         }
 
         String sha2HexValue;
-        if (root.getLeft()!=null && root.getRight()==null) // LeafHashNode
-        {
-             sha2HexValue = getSHA2HexValue(root.getLeft().getName()+root.getLeft().getValue());
 
-        }
-        else
-        {
-            sha2HexValue = getSHA2HexValue(root.getLeft().getHash() + root.getRight().getHash());
 
-        }
+        sha2HexValue = getSHA2HexValue(root.getLeft().getHash() + root.getRight().getHash());
+
         String hash1 = root.getHash();
 
         if (hash1.equals(sha2HexValue))
@@ -306,7 +333,7 @@ public class MerkleTreeUtil {
 
 
     }
-*/
+
 
 
 
