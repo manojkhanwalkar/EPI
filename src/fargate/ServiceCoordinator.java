@@ -9,10 +9,11 @@ public class ServiceCoordinator {
     Map<String,TaskDef> tasks = new HashMap<>();
 
 
+    TaskDefWatcher watcher ;
     public ServiceCoordinator()
     {
-
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(this)));
+        watcher = new TaskDefWatcher("/home/manoj/data/svccoordinator/",this);
     }
 
     public void register(TaskDef taskDef) throws Exception {

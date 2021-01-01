@@ -1,5 +1,7 @@
 package fargate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class TaskDef {
     //"java -cp  /home/manoj/IdeaProjects/JWT/target/JWT-1.0-SNAPSHOT.jar services.authorizer.AuthApplication server /home/manoj/IdeaProjects/JWT/src/main/resources/Auth.yml " ;
     // "java -cp /home/manoj/IdeaProjects/EPI/target/EPI-1.0-SNAPSHOT.jar fargate.DemoClient" ;
@@ -7,6 +9,7 @@ public class TaskDef {
     String command ;
     String serviceName;
 
+    @JsonIgnore
     Process process;
 
     public String getCommand() {

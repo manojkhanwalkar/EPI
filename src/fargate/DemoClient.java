@@ -8,7 +8,7 @@ public class DemoClient {
 
         while(true)
         {
-            System.out.println(Instant.now());
+            System.out.println("Change to " + Instant.now());
 
             Thread.sleep(1000);
         }
