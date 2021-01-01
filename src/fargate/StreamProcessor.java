@@ -33,6 +33,7 @@ public class StreamProcessor implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Out of Stream Processor loop");
 
     }
 }
