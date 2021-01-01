@@ -1,22 +1,24 @@
 package fargate;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class ServiceCoordinator {
 
-    Map<String,TaskDef> tasks = new HashMap<>();
+    ConcurrentMap<String,TaskDef> tasks = new ConcurrentHashMap<>();
 
 
     TaskDefWatcher watcher ;
+    ProcessHealthWatcher processHealthWatcher;
     public ServiceCoordinator()
     {
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(this)));
         watcher = new TaskDefWatcher("/home/manoj/data/svccoordinator/",this);
+        processHealthWatcher = new ProcessHealthWatcher(this);
     }
 
-    public void register(TaskDef taskDef) throws Exception {
+    public synchronized void register(TaskDef taskDef) throws Exception {
         // if task exists , delete that process and then start this one.
         var task = tasks.get(taskDef.getServiceName());
         if (task!=null)
@@ -30,6 +32,14 @@ public class ServiceCoordinator {
         taskDef.setProcess(p);
 
 
+    }
+
+    public synchronized void restart(TaskDef taskDef) throws Exception
+    {
+        if (taskDef.getProcess().isAlive())  // for a race condition where registering a new task def has stopped an earlier process.
+            return ;
+        Process p = process(taskDef.getCommand());
+        taskDef.setProcess(p);
     }
 
    /* public static void main(String[] args) throws Exception {
