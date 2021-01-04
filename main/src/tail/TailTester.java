@@ -21,9 +21,13 @@ public class TailTester {
 
         static class MyListener extends TailerListenerAdapter {
 
+            Alerter alerter = ConsoleAlerter.getDefaultConsoleAlerter();
+
             @Override
             public void handle(String line) {
-                System.out.println(line);
+
+                alerter.raise(line);
+                //System.out.println(line);
             }
 
         }
