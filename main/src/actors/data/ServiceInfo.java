@@ -1,4 +1,4 @@
-package actors;
+package actors.data;
 
 import akka.actor.typed.ActorRef;
 
@@ -6,6 +6,6 @@ import java.util.List;
 
 public class ServiceInfo {
 
-    List<ActorRef<Object>> services;
+    public List<ActorRef<Object>> services;
 
 }

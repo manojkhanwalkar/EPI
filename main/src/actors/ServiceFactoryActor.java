@@ -15,9 +15,9 @@ public class ServiceFactoryActor extends AbstractBehavior<Object> {
 
     List<ActorRef<Object>> serviceActors = new ArrayList<>();
 
-    ActorRef<Registration> serviceDiscovery;
+    ActorRef<Object> serviceDiscovery;
 
-    private ServiceFactoryActor(ActorContext<Object> context, ActorRef<Registration> serviceDiscovery) {
+    private ServiceFactoryActor(ActorContext<Object> context, ActorRef<Object> serviceDiscovery) {
         super(context);
 
         this.serviceDiscovery = serviceDiscovery;
@@ -27,7 +27,7 @@ public class ServiceFactoryActor extends AbstractBehavior<Object> {
     }
 
 
-    public static Behavior<Object> create(ActorRef<Registration> serviceDiscovery) {
+    public static Behavior<Object> create(ActorRef<Object> serviceDiscovery) {
         return  Behaviors.setup(context-> new ServiceFactoryActor(context,serviceDiscovery));
     }
 
@@ -45,8 +45,6 @@ public class ServiceFactoryActor extends AbstractBehavior<Object> {
 
         for (int i=0;i<5;i++) {
 
-            start = true;
-            while (start) {
 
 
                 var serviceActor = getContext().spawn(ServiceActor.create(), UUID.randomUUID().toString());
@@ -61,19 +59,11 @@ public class ServiceFactoryActor extends AbstractBehavior<Object> {
 
                 serviceDiscovery.tell(register);
 
-                if (serviceActors.size() == 10)
-                    start = false;
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
 
             }
 
-            while (serviceActors.size() > 0) {
+     /*       while (serviceActors.size() > 0) {
                 var serviceActor = serviceActors.remove(0);
 
                 Registration register = new Registration();
@@ -93,10 +83,10 @@ public class ServiceFactoryActor extends AbstractBehavior<Object> {
 
             }
 
-        }
+        }*/
 
 
-        return Behaviors.stopped();
+        return this;
     }
 
 

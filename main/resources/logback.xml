@@ -10,7 +10,7 @@
         <appender-ref ref="STDOUT" />
     </root> -->
 
-
+<!--
     <property name="LOG_DIR" value="/tmp" />
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${LOG_DIR}/log.txt</file>
@@ -23,5 +23,7 @@
     <root level="warn">
         <appender-ref ref="FILE" />
     </root>
+
+    -->
 
 </configuration>

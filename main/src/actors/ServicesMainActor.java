@@ -10,13 +10,12 @@ import akka.actor.typed.javadsl.Receive;
 public class ServicesMainActor extends AbstractBehavior<Object> {
 
     ActorRef<Object> factoryRef;
-    ActorRef<Registration> discoveryRef;
+    ActorRef<Object> discoveryRef;
+
+    ActorRef<Object> clientRef;
 
     private ServicesMainActor(ActorContext<Object> context) {
         super(context);
-        var discovery = ServiceDiscoveryActor.create();
-         discoveryRef = context.spawn(discovery,"discovery");
-         factoryRef = context.spawn(ServiceFactoryActor.create(discoveryRef),"factory" );
 
     }
 
@@ -36,7 +35,20 @@ public class ServicesMainActor extends AbstractBehavior<Object> {
 
     private Behavior<Object> onStart() {
 
+
+        var discovery = ServiceDiscoveryActor.create();
+        discoveryRef = getContext().spawn(discovery,"discovery");
+        factoryRef = getContext().spawn(ServiceFactoryActor.create(discoveryRef),"factory" );
+        clientRef = getContext().spawn(ServiceClientActor.create(discoveryRef),"client" );
+
         factoryRef.tell("start");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        clientRef.tell("start");
         return this;
     }
 

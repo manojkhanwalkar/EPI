@@ -1,5 +1,9 @@
 package actors;
 
+import actors.data.Heartbeat;
+import actors.data.Request;
+import actors.data.Response;
+import actors.data.ServiceInfo;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
@@ -8,10 +12,7 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ServiceActor extends AbstractBehavior<Object> {
 
@@ -32,6 +33,7 @@ public class ServiceActor extends AbstractBehavior<Object> {
     public Receive<Object> createReceive() {
         return newReceiveBuilder().onMessage(ServiceInfo.class, this::onServiceInfo)
                 .onMessage(Heartbeat.class,this::onHeartBeat)
+                .onMessage(Request.class,this::processRequest)
                 .onSignal(PostStop.class, signal->onPostStop() )
                 .build();
     }
@@ -39,6 +41,14 @@ public class ServiceActor extends AbstractBehavior<Object> {
 
     private Behavior<Object> onPostStop() {
         System.out.println("Service actor stopped " + getContext().getSelf());
+        return this;
+    }
+
+    private Behavior<Object> processRequest(Request request) {
+
+        System.out.println("Recd request");
+        Response response = new Response(request.id, UUID.randomUUID().toString());
+        request.replyTo.tell(response);
         return this;
     }
 
@@ -67,7 +77,7 @@ public class ServiceActor extends AbstractBehavior<Object> {
 
     private Behavior<Object> onHeartBeat(Heartbeat heartbeat) {
 
-        System.out.println(getContext().getSelf() + " received heartbeat from " + heartbeat.sourceService);
+       // System.out.println(getContext().getSelf() + " received heartbeat from " + heartbeat.sourceService);
         heartbeatInfo.put(heartbeat.sourceService.toString(),System.currentTimeMillis());
         return this;
     }
