@@ -10,8 +10,7 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +40,6 @@ public class ServiceClientActor extends AbstractBehavior<Object> {
         return newReceiveBuilder()
                 .onMessageEquals("start", this::appStart)
                 .onMessage(ServiceInfo.class, this::serviceInfo)
-                .onMessage(Response.class, this::processResponse)
                 .build();
     }
 
@@ -61,59 +59,46 @@ public class ServiceClientActor extends AbstractBehavior<Object> {
 
     }
 
-    private Behavior<Object> processResponse(Response response) {
-      System.out.println("Recd response");
-        var future = responses.get(response.requestId);
-
-        future.complete(response);
-
-        return this;
-    }
 
 
-        Map<String,CompletableFuture<Response>> responses = new HashMap<>();
+
 
         private Behavior<Object> serviceInfo(ServiceInfo info) {
-
-        serviceFuture.complete(info.services.get(0));
-
-        System.out.println("Service info received from discovery");
-
-        try {
-            service = serviceFuture.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("=================> Received service handle ");
 
         // send a request to each of the services and get back a response .
         // Print responses once we have it from all services
          CompletableFuture<Response> [] futures = new CompletableFuture[info.services.size()];
-         int index=0;
-        for ( var service : info.services)
-        {
-            CompletableFuture<Response> future = new CompletableFuture<>();
-            Request request = new Request(UUID.randomUUID().toString());
-            request.replyTo=getContext().getSelf();
-            responses.put(request.id,future);
-            futures[index++] = future;
-            service.tell(request);
-        }
 
-     /*   var result = CompletableFuture.allOf(futures).join();
+         for (int i=0;i<5;i++) {
+             int index = 0;
+             for (var service : info.services) {
+                 CompletableFuture<Response> future = new CompletableFuture<>();
+                 Request request = new Request(UUID.randomUUID().toString());
 
-            Arrays.stream(futures).forEach(f->{
-                try {
-                    System.out.println(f.get());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-            });*/
+                 var child = getContext().spawn(RequestResponseActor.create(service, future), "RequestResponse" + System.nanoTime());
+                 child.tell(request);
+                 futures[index++] = future;
+             }
+
+             var result = CompletableFuture.allOf(futures).join();
+
+             Arrays.stream(futures).forEach(f -> {
+                 try {
+                     System.out.println(f.get());
+                 } catch (InterruptedException e) {
+                     e.printStackTrace();
+                 } catch (ExecutionException e) {
+                     e.printStackTrace();
+                 }
+             });
+
+
+             getContext().getChildren().forEach(c -> {
+                 getContext().stop(c.narrow());
+             });
+
+
+         }
         return this;
     }
 

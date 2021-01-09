@@ -1,6 +1,6 @@
 package actors.data;
 
-public class Response {
+public class Response implements Msg {
 
     public String requestId;
 
