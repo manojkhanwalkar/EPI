@@ -2,6 +2,8 @@ package actorframework;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AktorSystem {
 
@@ -11,13 +13,26 @@ public class AktorSystem {
 
     static boolean initialized = false;
 
-    public static <T> AktorRef<T>  create(Behavior<T> behavior , String behaviourName )
+    public enum Strategy { Sync , Dedicated , ThreadPool };
+
+     static Strategy strategy;
+
+     static ExecutorService service ;
+
+    public static <T> AktorRef<T>  create(Behavior<T> behavior , String behaviourName, Strategy s )
     {
         if (initialized)
             throw new RuntimeException("Actor system already initialized");
+        strategy = s;
 
+        if (strategy==Strategy.ThreadPool)
+        {
+            service = Executors.newCachedThreadPool();
+        }
         // create and return an actor ref
         var actorRef =  new AktorRef<>(behavior,behaviourName);
+
+
 
         initialized=true;
         return actorRef;
