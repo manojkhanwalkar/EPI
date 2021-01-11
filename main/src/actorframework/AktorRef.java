@@ -48,6 +48,7 @@ public class AktorRef<T> {
     {
         this.behavior = behavior;
         this.name = name;
+        behavior.setAktorRef(this);
 
         if (AktorSystem.strategy== AktorSystem.Strategy.Dedicated)
             service = Executors.newFixedThreadPool(1);

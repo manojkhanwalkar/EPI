@@ -1,6 +1,8 @@
 package actorframework;
 
 
+import akka.actor.typed.ActorRef;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,5 +36,16 @@ public abstract class AbstractAktorBehavior<T>  implements Behavior<T> {
 
         return actorRef;
 
+    }
+
+    @Override
+    public void setAktorRef(AktorRef<T> self) {
+        this.self = self;
+    }
+
+    AktorRef<T> self;
+    protected AktorRef<T> getSelf() {
+
+        return self;
     }
 }
