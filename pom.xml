@@ -23,6 +23,20 @@
             <version>${dropwizard.version}</version>
         </dependency>
 
+       <!-- https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava -->
+     <!--   <dependency>
+            <groupId>io.reactivex.rxjava2</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>2.2.20</version>
+        </dependency> -->
+
+        <dependency>
+            <groupId>io.reactivex.rxjava3</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
         <dependency>
             <groupId>org.apache.tika</groupId>
