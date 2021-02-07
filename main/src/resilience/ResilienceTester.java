@@ -39,7 +39,32 @@ public class ResilienceTester {
 
        // testCache();
 
-        testAllFeatures();
+       // testAllFeatures();
+
+        testTimeLimiter();
+
+    }
+
+    public static void testTimeLimiter() throws Exception
+    {
+
+// Create a TimeLimiter
+        TimeLimiter timeLimiter = TimeLimiter.of(Duration.ofSeconds(1));
+// The Scheduler is needed to schedule a timeout on a non-blocking CompletableFuture
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
+
+// The non-blocking variant with a CompletableFuture
+        CompletableFuture<String> result = timeLimiter.executeCompletionStage(
+                scheduler, () -> CompletableFuture.supplyAsync(()-> "hello world")).toCompletableFuture();
+
+        System.out.println(result.get());
+
+// The blocking variant which is basically future.get(timeoutDuration, MILLISECONDS)
+        String result1 = timeLimiter.executeFutureSupplier(
+                () -> CompletableFuture.supplyAsync(() -> "hello world"));
+
+        System.out.println(result1);
+
 
     }
 

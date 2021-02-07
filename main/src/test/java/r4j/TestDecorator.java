@@ -1,6 +1,8 @@
 package test.java.r4j;
 
 import org.junit.Test;
+import r4j.bulkhead.Bulkhead;
+import r4j.bulkhead.BulkheadConfig;
 import r4j.circuitbreaker.CircuitBreaker;
 import r4j.circuitbreaker.CircuitBreakerConfig;
 import r4j.ratelimiter.RateLimiter;
@@ -73,6 +75,52 @@ public class TestDecorator {
         //
 
         //System.out.println("Hello from rate limit");
+    }
+
+    private static String bulkheadRetryProcess()
+    {
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "BulkheadRetryProcessTest  " + Thread.currentThread().getName() + "  " + count.getAndIncrement();
+    }
+
+    @Test
+    public void testDecorator2()
+    {
+
+
+        var config = RetryConfig.custom().backoff(1).numRetries(10).waitTime(1).build();
+        Retry retry = new Retry(config);
+
+        var config1 = BulkheadConfig.custom()
+                .concurrent(1).timeout(2).build();
+
+        Bulkhead bulkhead = new Bulkhead(config1);
+
+
+
+        for (int i=0;i<100;i++) {
+
+            CompletableFuture.runAsync(()->{
+
+                var supplier = Decorator.ofSupplier(TestDecorator::bulkheadRetryProcess)
+                        .withBulkhead(bulkhead).withRetry(retry).decorate();
+
+                var result = Try.ofSupplier(supplier).get();
+
+                System.out.println(result);
+
+            });
+        }
+
+        try {
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 

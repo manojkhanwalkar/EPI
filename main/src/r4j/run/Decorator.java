@@ -1,5 +1,6 @@
 package r4j.run;
 
+import r4j.bulkhead.Bulkhead;
 import r4j.circuitbreaker.CircuitBreaker;
 import r4j.ratelimiter.RateLimiter;
 import r4j.retry.Retry;
@@ -38,6 +39,12 @@ public class Decorator {
         public DecoratorBuilder<T> withRetry(Retry retry)
         {
             supplier = Retry.decorateSupplier(retry,supplier);
+            return this;
+        }
+
+        public DecoratorBuilder<T> withBulkhead(Bulkhead bulkhead)
+        {
+            supplier = Bulkhead.decorateSupplier(bulkhead,supplier);
             return this;
         }
 
