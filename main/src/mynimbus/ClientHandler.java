@@ -29,7 +29,7 @@ public class ClientHandler {
        list.addAll(kaPubKReceiverMap.values()) ;
         list.addAll(signPubKReceiverMap.values() ) ;
        JWKSet set = new JWKSet(list);
-         return set.toJSONObject().toJSONString();
+         return com.nimbusds.jose.util.JSONObjectUtils.toJSONString(set.toJSONObject()); // public keys only
     }
 
     Sender sender;
