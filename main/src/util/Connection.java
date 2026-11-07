@@ -8,7 +8,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.Properties;
 
 public class Connection {
 
@@ -20,17 +19,11 @@ public class Connection {
 
 
 
-    private void initConnectionProps()
-    {
-        final Properties props = System.getProperties();
-        props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
-
-    }
-
     public Connection(String target)
     {
         this.target = target;
-        initConnectionProps();
+        // TLS hostname verification stays enabled (the JVM-wide
+        // jdk.internal.httpclient.disableHostnameVerification override was removed: it allowed MITM).
         client = HttpClient.newHttpClient();
     }
 

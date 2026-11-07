@@ -103,8 +103,14 @@ public class Sender {
 
                 byte[] bytes = HMACUtil.calcHmacSha256(secret.getBytes(),request.payload.getBytes());
 
-                String sign = Base64.getEncoder().encodeToString(bytes);
-                if (!sign.equals(request.sign)) {
+                byte[] received;
+                try {
+                    received = request.sign == null ? new byte[0] : Base64.getDecoder().decode(request.sign);
+                } catch (IllegalArgumentException e) {
+                    received = new byte[0];
+                }
+                // constant-time comparison so the signature can't be recovered byte by byte via timing
+                if (!java.security.MessageDigest.isEqual(bytes, received)) {
 
                     throw new RuntimeException("Signatures do not match");
                 }

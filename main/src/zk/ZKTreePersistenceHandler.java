@@ -8,6 +8,13 @@ import java.util.stream.Collectors;
 
 public class ZKTreePersistenceHandler {
 
+    static final ObjectInputFilter RECOVERY_FILTER = ObjectInputFilter.Config.createFilter(
+            "maxdepth=20;maxrefs=1000000;maxbytes=104857600;maxarray=1000000;"
+                    + "zk.Node;zk.Node$Type;java.util.ArrayList;java.util.HashMap;java.util.LinkedHashMap;"
+                    + "java.util.TreeMap;java.util.HashSet;java.util.concurrent.ConcurrentHashMap;java.lang.Enum;java.lang.String;java.lang.Number;java.lang.Integer;java.lang.Long;"
+                    // array classes are matched on their element type (ArrayList/HashMap backing arrays)
+                    + "java.lang.Object;java.util.Map$Entry;!*");
+
 
     public static void persist(String fileName, ZKTree tree)
     {
@@ -32,10 +39,16 @@ public class ZKTreePersistenceHandler {
             ObjectInputStream ois = new ObjectInputStream(fis);
         )
         {
+            // Only allow the types a persisted tree actually contains; anything else
+            // (e.g. a deserialization gadget chain planted in the file) is rejected.
+            ois.setObjectInputFilter(RECOVERY_FILTER);
             persistentNodes = (List<Node>)ois.readObject();
 
-        } catch(Exception ex) { //ex.printStackTrace();
-             }
+        } catch (FileNotFoundException ex) {
+            // no snapshot yet - start with a fresh tree
+        } catch(Exception ex) {
+            System.err.println("Could not recover ZK tree from " + fileName + ", starting fresh: " + ex);
+        }
 
 
         if (persistentNodes!=null)

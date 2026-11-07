@@ -17,7 +17,8 @@ public class MerkleTreeUtil {
 
     static {
         mapper = new ObjectMapper();
-        mapper.enableDefaultTyping();
+        // Allowlisted default typing (same JSON format as before, no arbitrary class instantiation).
+        mapper.activateDefaultTyping(java891011121314.JSONUtil.TYPE_VALIDATOR);
 
 
     }

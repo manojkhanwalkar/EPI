@@ -31,7 +31,7 @@ public class Sender {
         list.addAll(kaPubKSenderMap.values()) ;
         list.addAll(signPubKSenderMap.values() ) ;
         JWKSet set = new JWKSet(list);
-        return set.toJSONObject().toJSONString();
+        return com.nimbusds.jose.util.JSONObjectUtils.toJSONString(set.toJSONObject()); // public keys only
 
 
 

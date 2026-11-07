@@ -30,7 +30,7 @@ public class FPETest {
 
        SecureRandom secureRandom = new SecureRandom();
 
-        //secureRandom.nextBytes(key);
+        secureRandom.nextBytes(key); // never use an all-zero key
 
 
        secureRandom.nextBytes(tweak);
